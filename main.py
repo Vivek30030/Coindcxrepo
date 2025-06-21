@@ -92,16 +92,12 @@ def run_scan():
                 all_matches.append((tf, matches))
                 print("✅ Matches:", matches)
         if all_matches:
-            msg = "🚨 Alert from CoinDCX Bot:
-"
+            msg = "🚨 Alert from CoinDCX Bot:\n"
             for tf, coins in all_matches:
-                msg += f"
-📊 {tf}:
-" + "\n".join([f"• {c}" for c in coins])
+                msg += f"\n📊 {tf}:\n" + "\n".join([f"• {c}" for c in coins])
             send_telegram_message(msg)
             alert_sound()
-        print("⏳ Waiting 90 seconds...
-")
+        print("⏳ Waiting 90 seconds...\n")
         time.sleep(90)
 
 run_scan()
