@@ -1,6 +1,0 @@
-requests
-pandas
-ta
-gspread
-oauth2client
-openpyxl
