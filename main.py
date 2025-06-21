@@ -25,9 +25,9 @@ def send_telegram_message(message):
     data = {"chat_id": CHAT_ID, "text": message}
     try:
         response = requests.post(url, data=data)
-        print("📲 Telegram sent!" if response.ok else "❌ Telegram failed:", response.text)
+        print("📲 Telegram sent!" if response.ok else f"❌ Telegram failed: {response.text}")
     except Exception as e:
-        print("❌ Telegram error:", e)
+        print(f"❌ Telegram error: {e}")
 
 def alert_sound():
     if platform.system() == 'Windows':
@@ -42,7 +42,8 @@ def get_coindcx_usdt_pairs():
 def fetch_ohlcv(symbol, interval):
     url = f"https://public.coindcx.com/market_data/candles?pair={symbol}&interval={interval}&limit=200"
     data = requests.get(url).json()
-    if not data: return None
+    if not data:
+        return None
     df = pd.DataFrame(data, columns=['timestamp','open','high','low','close','volume']).sort_values('timestamp')
     return df
 
@@ -52,7 +53,7 @@ def log_to_gsheet(timeframe, coin):
         sheet.append_row([timestamp, timeframe, coin])
         print(f"📝 Logged to Google Sheet: {coin} [{timeframe}]")
     except Exception as e:
-        print("❌ Google Sheets logging error:", e)
+        print(f"❌ Google Sheets logging error: {e}")
 
 def analyze(df):
     df['ema9'] = ta.trend.EMAIndicator(df['close'], 9).ema_indicator()
@@ -77,13 +78,15 @@ def run_scan():
             matches = []
             for coin in get_coindcx_usdt_pairs():
                 df = fetch_ohlcv(coin, tf)
-                if df is None or len(df) < 200: continue
+                if df is None or len(df) < 200:
+                    continue
                 df[['open','high','low','close','volume']] = df[['open','high','low','close','volume']].astype(float)
                 try:
                     if analyze(df):
                         matches.append(coin)
                         log_to_gsheet(tf, coin)
-                except: continue
+                except:
+                    continue
                 time.sleep(0.05)
             if matches:
                 all_matches.append((tf, matches))
@@ -94,8 +97,7 @@ def run_scan():
             for tf, coins in all_matches:
                 msg += f"
 📊 {tf}:
-" + "
-".join([f"• {c}" for c in coins])
+" + "\n".join([f"• {c}" for c in coins])
             send_telegram_message(msg)
             alert_sound()
         print("⏳ Waiting 90 seconds...

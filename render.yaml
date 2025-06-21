@@ -1,4 +1,3 @@
-
 services:
   - type: worker
     name: coindcx-alert-bot
